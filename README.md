@@ -250,7 +250,7 @@ demo.launch(
 - 🚶 Pedestrian crossing logic
 
 ### Research Directions
-- Compare with SUMO (Simulation of Urban MObility)
+- ~~Compare with SUMO (Simulation of Urban MObility)~~ ✅ Integrated via `sumo-rl` with 6 built-in scenarios
 - Implement multi-agent RL approaches
 - Test on real traffic patterns
 - Optimize for different objectives (emissions, energy, equity)
@@ -292,7 +292,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] Interactive Gradio app
 - [x] Non-episodic evaluation guide
 - [x] VS Code integration
-- [ ] SUMO integration
+- [x] SUMO integration
 - [ ] Multi-intersection support
 - [ ] Real traffic data examples
 - [ ] Docker containerization
