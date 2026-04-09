@@ -1,0 +1,33 @@
+# Core RL and Environment
+gymnasium>=0.29.0
+stable-baselines3>=2.0.0
+
+# Deep Learning
+torch>=2.0.0
+tensorboard>=2.13.0
+
+# Numerical Computing
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Data Analysis
+pandas>=2.0.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Jupyter
+jupyter>=1.0.0
+ipykernel>=6.20.0
+notebook>=6.5.0
+
+# SUMO integration
+eclipse-sumo>=1.18.0
+traci>=1.18.0
+sumolib>=1.18.0
+sumo-rl>=1.4.0
+
+# Optional: For advanced visualizations (uncomment if needed)
+# plotly>=5.14.0
+# opencv-python>=4.7.0

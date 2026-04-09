@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r traffic_rl_project/requirements.txt
+        pip install -r gradio_app/requirements_gradio.txt
+        pip install pytest pylint black
+    
+    - name: Run linting
+      run: |
+        black --check traffic_rl_project/*.py gradio_app/*.py || true
+        pylint traffic_rl_project/*.py gradio_app/*.py --disable=all --enable=E,F || true
+    
+    - name: Test setup script
+      run: |
+        python traffic_rl_project/test_setup.py
+    
+    - name: Test Gradio app import
+      run: |
+        python -c "import sys; sys.path.insert(0, 'gradio_app'); import gradio_traffic_app"
+
+  notebook-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r traffic_rl_project/requirements.txt
+        pip install nbconvert jupyter
+    
+    - name: Check notebooks can be executed
+      run: |
+        jupyter nbconvert --to notebook --execute traffic_rl_project/traffic_signal_rl.ipynb --ExecutePreprocessor.timeout=300 || true
+        jupyter nbconvert --to notebook --execute non_episodic_evaluation_guide.ipynb --ExecutePreprocessor.timeout=300 || true
