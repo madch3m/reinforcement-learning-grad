@@ -48,6 +48,10 @@ Simply run all cells in order. The notebook is structured to:
 ```
 traffic_rl_project/
 ├── traffic_signal_rl.ipynb    # Main notebook
+├── environment.py             # Shared Gymnasium environment
+├── baselines.py               # Baseline controllers
+├── evaluation.py              # Evaluation utilities
+├── __init__.py                # Public package exports
 ├── requirements.txt            # Python dependencies
 ├── README.md                   # This file
 ├── models/                     # Saved models (created during training)
@@ -86,6 +90,8 @@ traffic_rl_project/
 In the notebook, adjust the `arrival_rates` parameter:
 
 ```python
+from traffic_rl_project.environment import TrafficSignalEnv
+
 env = TrafficSignalEnv(
     arrival_rates=[0.3, 0.2, 0.3, 0.2],  # [North, East, South, West]
     episode_length=1800,  # 30 minutes
@@ -98,6 +104,8 @@ env = TrafficSignalEnv(
 Edit the `_calculate_reward` method in `TrafficSignalEnv`:
 
 ```python
+from traffic_rl_project.environment import TrafficSignalEnv
+
 def _calculate_reward(self, vehicles_passed, total_waiting):
     # Your custom reward logic here
     throughput_reward = vehicles_passed * 1.0

@@ -5,24 +5,20 @@ Tests cover: Vehicle, TrafficGenerator, TrafficSignalEnv, Controllers, and Gradi
 
 import pytest
 import numpy as np
-from collections import deque
-from unittest.mock import patch
-import sys
-import os
 
-# Add parent directory so we can import the gradio app module
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'gradio_app'))
-
-from gradio_traffic_app import (
-    Vehicle,
-    TrafficSignalEnv,
-    FixedTimeController,
+from traffic_rl_project import (
     ActuatedController,
+    FixedTimeController,
     MaxPressureController,
+    TrafficSignalEnv,
+    Vehicle,
+    compare_controllers,
+)
+from gradio_app.gradio_traffic_app import (
     create_intersection_visualization,
     create_performance_plots,
-    run_simulation,
     run_comparison,
+    run_simulation,
 )
 
 
@@ -81,7 +77,7 @@ class TestTrafficSignalEnv:
         # Run a few steps to change state
         for _ in range(10):
             env.step(0)
-        obs = env.reset()
+        obs, info = env.reset()
         assert env.current_time == 0
         assert env.current_phase == 0
         assert env.phase_time == 0
@@ -89,16 +85,17 @@ class TestTrafficSignalEnv:
         assert env.total_vehicles_arrived == 0
         assert all(len(q) == 0 for q in env.queues)
         assert len(obs) == 10
+        assert info == {}
 
     def test_observation_shape(self):
         env = TrafficSignalEnv()
-        obs = env.reset()
+        obs, _ = env.reset()
         assert obs.shape == (10,)
         assert obs.dtype == np.float32
 
     def test_observation_contents_at_reset(self):
         env = TrafficSignalEnv()
-        obs = env.reset()
+        obs, _ = env.reset()
         # Queue lengths should be 0
         np.testing.assert_array_equal(obs[:4], [0, 0, 0, 0])
         # Avg waiting times should be 0
@@ -367,14 +364,30 @@ class TestControllerIntegration:
         np.random.seed(0)
         env = TrafficSignalEnv(arrival_rates=[0.2, 0.2, 0.2, 0.2])
         controller = controller_cls(**kwargs)
-        obs = env.reset()
+        obs, _ = env.reset()
         total_steps = 200
         for _ in range(total_steps):
-            action, _ = controller.predict(obs)
+            action, _ = controller.predict(obs, env)
             assert action in (0, 1)
             obs, reward, terminated, truncated, info = env.step(action)
         assert info['vehicles_passed'] >= 0
         assert info['throughput'] >= 0
+
+    def test_compare_controllers_returns_expected_rows(self):
+        np.random.seed(0)
+        env = TrafficSignalEnv(arrival_rates=[0.2, 0.2, 0.2, 0.2], episode_length=100)
+        controllers = [
+            FixedTimeController(green_time=30),
+            ActuatedController(min_green=10, max_green=60),
+            MaxPressureController(),
+        ]
+        results = compare_controllers(controllers, env, n_episodes=2)
+        assert len(results) == 3
+        assert {result["controller"] for result in results} == {
+            "Fixed-Time",
+            "Actuated",
+            "Max-Pressure",
+        }
 
 
 # ============================================================================
@@ -465,7 +478,7 @@ class TestEdgeCases:
     def test_zero_arrival_rate(self):
         """Environment with zero traffic should still work."""
         env = TrafficSignalEnv(arrival_rates=[0.0, 0.0, 0.0, 0.0])
-        obs = env.reset()
+        obs, _ = env.reset()
         for _ in range(50):
             obs, reward, _, _, info = env.step(0)
         assert info['vehicles_passed'] == 0
@@ -474,14 +487,14 @@ class TestEdgeCases:
     def test_max_arrival_rate(self):
         """Environment with very high traffic should not crash."""
         env = TrafficSignalEnv(arrival_rates=[0.5, 0.5, 0.5, 0.5])
-        obs = env.reset()
+        obs, _ = env.reset()
         for _ in range(100):
             obs, reward, _, _, info = env.step(np.random.choice([0, 1]))
         assert np.isfinite(reward)
 
     def test_single_step(self):
         env = TrafficSignalEnv()
-        obs = env.reset()
+        obs, _ = env.reset()
         obs, reward, terminated, truncated, info = env.step(0)
         assert not terminated
         assert not truncated
@@ -489,7 +502,7 @@ class TestEdgeCases:
     def test_repeated_resets(self):
         env = TrafficSignalEnv()
         for _ in range(5):
-            obs = env.reset()
+            obs, _ = env.reset()
             assert obs.shape == (10,)
             for _ in range(10):
                 env.step(0)

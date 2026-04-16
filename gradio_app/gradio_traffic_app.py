@@ -1,201 +1,26 @@
-"""
-Traffic Signal RL Visualization with Gradio
-Deploy to Hugging Face Spaces for interactive simulation visualization
-"""
+"""Traffic Signal RL Visualization with Gradio."""
+
+import io
+import os
+import sys
 
 import gradio as gr
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from matplotlib.animation import FuncAnimation
-from collections import deque
-import io
+import matplotlib.pyplot as plt
+import numpy as np
 from PIL import Image
-import time
 
-# ============================================================================
-# Environment Implementation (Simplified for Gradio)
-# ============================================================================
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
-class Vehicle:
-    """Represents a single vehicle."""
-    def __init__(self, arrival_time: float, lane: int):
-        self.arrival_time = arrival_time
-        self.lane = lane
-        self.waiting_time = 0.0
-        self.has_passed = False
-        
-    def update_waiting_time(self, dt: float):
-        if not self.has_passed:
-            self.waiting_time += dt
-
-
-class TrafficSignalEnv:
-    """Traffic signal environment for Gradio visualization."""
-    
-    PHASES = {
-        0: {'ns': 'green', 'ew': 'red'},
-        1: {'ns': 'yellow', 'ew': 'red'},
-        2: {'ns': 'red', 'ew': 'green'},
-        3: {'ns': 'red', 'ew': 'yellow'},
-    }
-    
-    def __init__(self, arrival_rates=[0.2, 0.2, 0.2, 0.2], min_green_time=10):
-        self.arrival_rates = arrival_rates
-        self.min_green_time = min_green_time
-        self.dt = 1.0
-        self.max_queue_length = 50
-        self.reset()
-        
-    def reset(self):
-        self.current_time = 0
-        self.current_phase = 0
-        self.phase_time = 0
-        self.queues = [deque() for _ in range(4)]
-        self.total_waiting_time = 0
-        self.total_vehicles_passed = 0
-        self.total_vehicles_arrived = 0
-        return self._get_observation()
-    
-    def step(self, action: int):
-        # Generate new vehicles
-        for lane in range(4):
-            if np.random.random() < self.arrival_rates[lane] * self.dt:
-                if len(self.queues[lane]) < self.max_queue_length:
-                    vehicle = Vehicle(self.current_time, lane)
-                    self.queues[lane].append(vehicle)
-                    self.total_vehicles_arrived += 1
-        
-        # Update phase
-        if action == 1 and self.phase_time >= self.min_green_time:
-            self.current_phase = (self.current_phase + 1) % 4
-            self.phase_time = 0
-        else:
-            self.phase_time += self.dt
-        
-        # Process vehicles
-        vehicles_passed = self._process_vehicles()
-        
-        # Update waiting times
-        total_waiting = 0
-        for queue in self.queues:
-            for vehicle in queue:
-                vehicle.update_waiting_time(self.dt)
-                total_waiting += vehicle.waiting_time
-        
-        # Calculate reward
-        reward = vehicles_passed * 1.0 - sum(len(q) for q in self.queues) * 0.1
-        
-        self.total_vehicles_passed += vehicles_passed
-        self.total_waiting_time += total_waiting
-        self.current_time += self.dt
-        
-        obs = self._get_observation()
-        info = {
-            'vehicles_passed': self.total_vehicles_passed,
-            'avg_waiting_time': self.total_waiting_time / max(self.total_vehicles_arrived, 1),
-            'throughput': self.total_vehicles_passed / (self.current_time + 1)
-        }
-        
-        return obs, reward, False, False, info
-    
-    def _process_vehicles(self):
-        vehicles_passed = 0
-        phase_info = self.PHASES[self.current_phase]
-        
-        if phase_info['ns'] == 'green':
-            for lane in [0, 2]:
-                if self.queues[lane] and np.random.random() < 0.5 * self.dt:
-                    vehicle = self.queues[lane].popleft()
-                    vehicle.has_passed = True
-                    vehicles_passed += 1
-        
-        if phase_info['ew'] == 'green':
-            for lane in [1, 3]:
-                if self.queues[lane] and np.random.random() < 0.5 * self.dt:
-                    vehicle = self.queues[lane].popleft()
-                    vehicle.has_passed = True
-                    vehicles_passed += 1
-        
-        return vehicles_passed
-    
-    def _get_observation(self):
-        queue_lengths = np.array([len(q) for q in self.queues], dtype=np.float32)
-        avg_waiting = np.zeros(4, dtype=np.float32)
-        for i, queue in enumerate(self.queues):
-            if queue:
-                avg_waiting[i] = np.mean([v.waiting_time for v in queue])
-        phase_info = np.array([self.current_phase, self.phase_time], dtype=np.float32)
-        return np.concatenate([queue_lengths, avg_waiting, phase_info])
-
-
-# ============================================================================
-# Controllers/Policies
-# ============================================================================
-
-class FixedTimeController:
-    """Fixed-time controller."""
-    def __init__(self, green_time=30):
-        self.green_time = green_time
-        self.name = "Fixed-Time"
-    
-    def predict(self, obs):
-        phase_time = obs[9]
-        action = 1 if phase_time >= self.green_time else 0
-        return action, None
-
-
-class ActuatedController:
-    """Actuated controller."""
-    def __init__(self, min_green=10, max_green=60):
-        self.min_green = min_green
-        self.max_green = max_green
-        self.name = "Actuated"
-    
-    def predict(self, obs):
-        queue_lengths = obs[:4]
-        current_phase = int(obs[8])
-        phase_time = obs[9]
-        
-        if current_phase in [0, 1]:
-            active_queues = [queue_lengths[0], queue_lengths[2]]
-            waiting_queues = [queue_lengths[1], queue_lengths[3]]
-        else:
-            active_queues = [queue_lengths[1], queue_lengths[3]]
-            waiting_queues = [queue_lengths[0], queue_lengths[2]]
-        
-        if phase_time >= self.max_green:
-            return 1, None
-        elif phase_time >= self.min_green and sum(waiting_queues) > sum(active_queues):
-            return 1, None
-        return 0, None
-
-
-class MaxPressureController:
-    """Max-pressure controller."""
-    def __init__(self):
-        self.min_phase_time = 10
-        self.name = "Max-Pressure"
-    
-    def predict(self, obs):
-        queue_lengths = obs[:4]
-        current_phase = int(obs[8])
-        phase_time = obs[9]
-        
-        if phase_time < self.min_phase_time:
-            return 0, None
-        
-        ns_pressure = queue_lengths[0] + queue_lengths[2]
-        ew_pressure = queue_lengths[1] + queue_lengths[3]
-        
-        if current_phase in [0, 1]:
-            if ew_pressure > ns_pressure * 1.2:
-                return 1, None
-        else:
-            if ns_pressure > ew_pressure * 1.2:
-                return 1, None
-        
-        return 0, None
+from traffic_rl_project import (
+    ActuatedController,
+    FixedTimeController,
+    MaxPressureController,
+    TrafficSignalEnv,
+    Vehicle,
+)
 
 
 # ============================================================================
@@ -379,7 +204,7 @@ def run_simulation(controller_type, north_rate, east_rate, south_rate, west_rate
     
     # Create environment
     arrival_rates = [north_rate, east_rate, south_rate, west_rate]
-    env = TrafficSignalEnv(arrival_rates=arrival_rates)
+    env = TrafficSignalEnv(arrival_rates=arrival_rates, episode_length=num_steps)
     
     # Select controller
     if controller_type == "Fixed-Time":
@@ -390,7 +215,7 @@ def run_simulation(controller_type, north_rate, east_rate, south_rate, west_rate
         controller = MaxPressureController()
     
     # Initialize
-    obs = env.reset()
+    obs, _ = env.reset()
     
     # History for plotting
     history = {
@@ -402,7 +227,7 @@ def run_simulation(controller_type, north_rate, east_rate, south_rate, west_rate
     
     # Run simulation
     for step in range(num_steps):
-        action, _ = controller.predict(obs)
+        action, _ = controller.predict(obs, env)
         obs, reward, terminated, truncated, info = env.step(action)
         
         # Log history
@@ -452,11 +277,11 @@ def run_comparison(north_rate, east_rate, south_rate, west_rate, num_steps):
     results = []
     
     for controller in controllers:
-        env = TrafficSignalEnv(arrival_rates=arrival_rates)
-        obs = env.reset()
+        env = TrafficSignalEnv(arrival_rates=arrival_rates, episode_length=num_steps)
+        obs, _ = env.reset()
         
         for step in range(num_steps):
-            action, _ = controller.predict(obs)
+            action, _ = controller.predict(obs, env)
             obs, reward, terminated, truncated, info = env.step(action)
         
         results.append({

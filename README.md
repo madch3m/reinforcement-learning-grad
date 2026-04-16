@@ -23,6 +23,10 @@ A complete reinforcement learning project for traffic signal optimization, inclu
 traffic-signal-rl-complete/
 ├── traffic_rl_project/              # Main RL implementation
 │   ├── traffic_signal_rl.ipynb     # Complete training notebook
+│   ├── environment.py              # Importable Gymnasium environment
+│   ├── baselines.py                # Baseline traffic controllers
+│   ├── evaluation.py               # Evaluation helpers and comparisons
+│   ├── __init__.py                 # Package exports
 │   ├── requirements.txt             # Python dependencies
 │   ├── test_setup.py               # Environment verification
 │   └── README.md                   # Detailed documentation
@@ -214,6 +218,7 @@ agent.save("my_traffic_agent")
 ### Evaluating Controllers
 ```python
 from traffic_rl_project.baselines import FixedTimeController, ActuatedController
+from traffic_rl_project.evaluation import compare_controllers
 
 # Compare controllers
 controllers = [

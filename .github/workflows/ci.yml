@@ -39,8 +39,12 @@ jobs:
     
     - name: Run linting
       run: |
-        black --check traffic_rl_project/*.py gradio_app/*.py || true
-        pylint traffic_rl_project/*.py gradio_app/*.py --disable=all --enable=E,F || true
+        black --check traffic_rl_project/*.py gradio_app/*.py
+        pylint traffic_rl_project/*.py gradio_app/*.py --disable=all --enable=E,F
+
+    - name: Run test suite
+      run: |
+        pytest -q traffic_rl_project/test_traffic_rl.py
     
     - name: Test setup script
       run: |

@@ -6,7 +6,12 @@ Run this to verify your setup and see a quick demo.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from collections import deque
+import os
+import sys
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 print("=" * 80)
 print("TRAFFIC SIGNAL RL - QUICK START DEMO")
@@ -46,39 +51,21 @@ except ImportError as e:
     print(f"   ✗ matplotlib - {e}")
 
 # Simple environment test
-print("\n2. Testing simple traffic environment...")
-
-class SimplifiedTrafficEnv(gym.Env):
-    """Minimal traffic environment for testing."""
-    
-    def __init__(self):
-        super().__init__()
-        self.observation_space = spaces.Box(low=0, high=100, shape=(10,), dtype=np.float32)
-        self.action_space = spaces.Discrete(2)
-        
-    def reset(self, seed=None, options=None):
-        super().reset(seed=seed)
-        self.state = np.zeros(10, dtype=np.float32)
-        self.time = 0
-        return self.state, {}
-    
-    def step(self, action):
-        self.time += 1
-        self.state += np.random.randn(10) * 0.1
-        reward = -np.sum(self.state[:4])  # Minimize queue lengths
-        terminated = self.time >= 100
-        return self.state, reward, terminated, False, {}
+print("\n2. Testing project traffic environment...")
 
 try:
-    env = SimplifiedTrafficEnv()
+    from traffic_rl_project import FixedTimeController, TrafficSignalEnv
+
+    env = TrafficSignalEnv(arrival_rates=[0.2, 0.2, 0.2, 0.2], episode_length=100)
     obs, _ = env.reset()
     print(f"   ✓ Environment created successfully")
     print(f"   - Observation space: {env.observation_space}")
     print(f"   - Action space: {env.action_space}")
     
     # Test a few steps
+    controller = FixedTimeController(green_time=15)
     for i in range(5):
-        action = env.action_space.sample()
+        action, _ = controller.predict(obs, env)
         obs, reward, terminated, truncated, info = env.step(action)
     print(f"   ✓ Environment step test passed")
     
