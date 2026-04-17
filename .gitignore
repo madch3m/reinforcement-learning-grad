@@ -226,6 +226,9 @@ scenario_performance.png
 *.jpeg
 *.gif
 
+# Keep committed result images in the results directory
+!traffic_rl_project/results/*.png
+
 # But keep example images if you add them
 !examples/*.png
 !docs/*.png
