@@ -208,6 +208,10 @@ mlruns/
 data/
 datasets/
 
+# Keep committed data and results used in evaluation
+!traffic_rl_project/data/
+!traffic_rl_project/data/*.csv
+
 # Temporary files
 *.tmp
 *.temp

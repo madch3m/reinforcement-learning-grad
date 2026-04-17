@@ -1,0 +1,11 @@
+Toomer's Corner Traffic Evaluation
+======================================================================
+Data: /Users/simplifi/Downloads/rl_project/traffic-signal-rl-complete/traffic_rl_project/data/toomers_traffic.csv
+Duration: 15 minutes (900 seconds)
+Lane scaling: divided by 3 lanes per approach
+
+Controller         Passed   Arrived  Avg Wait (s)  Throughput  Final Q
+----------------------------------------------------------------------
+Fixed-Time            461       660      34073.47       0.512      199
+Actuated              329       526      63490.15       0.366      197
+Max-Pressure          880      1077      29736.95       0.978      197
