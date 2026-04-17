@@ -41,7 +41,10 @@ CSV_PATH = os.path.join(HERE, "data", "toomers_traffic.csv")
 OUT_DIR = os.path.join(HERE, "results", "toomers")
 os.makedirs(OUT_DIR, exist_ok=True)
 
-LANES_PER_APPROACH = 3         # assumed multi-lane aggregation in counts
+# Toomer's Corner lane configuration: N-S is the heavy arterial (2 lanes per
+# approach), E-W is a lighter cross street (1 lane per approach).
+# Order: [North, East, South, West]
+LANES_PER_APPROACH = [2, 1, 2, 1]
 SECONDS_PER_MINUTE = 60
 RANDOM_SEED = 42
 
@@ -56,13 +59,12 @@ def load_toomers_data(csv_path):
     with open(csv_path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # CSV is vehicles/min aggregated across all lanes -> per-lane per-second
-            rates = [
-                int(row["north"]) / SECONDS_PER_MINUTE / LANES_PER_APPROACH,
-                int(row["east"])  / SECONDS_PER_MINUTE / LANES_PER_APPROACH,
-                int(row["south"]) / SECONDS_PER_MINUTE / LANES_PER_APPROACH,
-                int(row["west"])  / SECONDS_PER_MINUTE / LANES_PER_APPROACH,
-            ]
+            # CSV is vehicles/min aggregated across all lanes of that approach.
+            # Divide by per-approach lane count to get per-lane per-second rate.
+            counts = [int(row["north"]), int(row["east"]),
+                      int(row["south"]), int(row["west"])]
+            rates = [c / SECONDS_PER_MINUTE / lanes
+                     for c, lanes in zip(counts, LANES_PER_APPROACH)]
             rows.append((int(row["minute"]), rates))
     return rows
 
@@ -131,10 +133,12 @@ def plot_all(results, data, out_dir):
     # Plot 1: Arrival rate profile from CSV
     fig, ax = plt.subplots(figsize=(10, 4))
     minutes = [m for m, _ in data]
-    arrays = np.array([r for _, r in data])  # shape (15, 4)
+    arrays = np.array([r for _, r in data])  # shape (15, 4) in veh/sec/lane
     labels = ["North", "East", "South", "West"]
     for i, label in enumerate(labels):
-        ax.plot(minutes, arrays[:, i] * LANES_PER_APPROACH * 60, marker="o", label=label)
+        # Convert back to raw veh/min per approach for the plot
+        raw = arrays[:, i] * LANES_PER_APPROACH[i] * 60
+        ax.plot(minutes, raw, marker="o", label=f"{label} ({LANES_PER_APPROACH[i]} lanes)")
     ax.set_xlabel("Minute")
     ax.set_ylabel("Vehicles per Minute (raw from CSV)")
     ax.set_title("Toomer's Corner - Traffic Arrival Profile")
@@ -237,10 +241,15 @@ def main():
     print("=" * 70)
 
     data = load_toomers_data(CSV_PATH)
-    total_arrivals = sum(sum(r) for _, r in data) * SECONDS_PER_MINUTE * LANES_PER_APPROACH
+    # Total raw vehicle count across all approaches
+    total_arrivals = sum(
+        sum(rate * lanes * SECONDS_PER_MINUTE
+            for rate, lanes in zip(rates, LANES_PER_APPROACH))
+        for _, rates in data
+    )
     print(f"\nData loaded: {len(data)} minutes")
-    print(f"Total expected arrivals: {int(total_arrivals):,} vehicles")
-    print(f"Per-lane scaling factor: divided by {LANES_PER_APPROACH} lanes/approach")
+    print(f"Total arrivals (raw, across all lanes): {int(total_arrivals):,} vehicles")
+    print(f"Lane configuration [N, E, S, W]: {LANES_PER_APPROACH}")
     print(f"Max per-lane rate: {max(max(r) for _, r in data):.2f} veh/sec")
     print()
 
@@ -272,7 +281,7 @@ def main():
         f.write("=" * 70 + "\n")
         f.write(f"Data: {CSV_PATH}\n")
         f.write(f"Duration: {len(data)} minutes ({len(data) * 60} seconds)\n")
-        f.write(f"Lane scaling: divided by {LANES_PER_APPROACH} lanes per approach\n\n")
+        f.write(f"Lane configuration [N, E, S, W]: {LANES_PER_APPROACH}\n\n")
         f.write(f"{'Controller':<16} {'Passed':>8} {'Arrived':>9} "
                 f"{'Avg Wait (s)':>13} {'Throughput':>11} {'Final Q':>8}\n")
         f.write("-" * 70 + "\n")
