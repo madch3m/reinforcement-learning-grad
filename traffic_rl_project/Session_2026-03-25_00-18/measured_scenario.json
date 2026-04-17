@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-03-25 00:18",
+  "video_file": "toomers_data_22.mp4",
+  "arrival_rates": [
+    114.0,
+    394.0,
+    0.0,
+    60.0
+  ],
+  "departure_rate": 0.5,
+  "duration_minutes": 1,
+  "total_vehicles": 568,
+  "method": "YOLOv8 on Google Colab",
+  "description": "Real Toomer's Corner traffic data"
+}

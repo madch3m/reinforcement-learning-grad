@@ -1,0 +1,197 @@
+{
+  "sessions": [
+    {
+      "session_id": "Session_2026-03-24_19-29",
+      "video_file": "Toomers_day_1.mp4",
+      "duration_minutes": 15,
+      "total_vehicles": 7437,
+      "mean_per_minute": {
+        "north": 120.33333333333333,
+        "south": 291.46666666666664,
+        "east": 40.0,
+        "west": 44.0
+      },
+      "peak_per_minute": {
+        "north": 181,
+        "south": 395,
+        "east": 60,
+        "west": 60
+      },
+      "dominant_direction": "south",
+      "metadata_rates_vehmin": [
+        120.33,
+        291.47,
+        40.0,
+        44.0
+      ]
+    },
+    {
+      "session_id": "Session_2026-03-25_00-07",
+      "video_file": "Toomers_Day_1_part2.mp4",
+      "duration_minutes": 11,
+      "total_vehicles": 5587,
+      "mean_per_minute": {
+        "north": 121.36363636363636,
+        "south": 304.72727272727275,
+        "east": 32.72727272727273,
+        "west": 49.09090909090909
+      },
+      "peak_per_minute": {
+        "north": 185,
+        "south": 375,
+        "east": 60,
+        "west": 60
+      },
+      "dominant_direction": "south",
+      "metadata_rates_vehmin": [
+        121.36,
+        304.73,
+        32.73,
+        49.09
+      ]
+    },
+    {
+      "session_id": "Session_2026-03-25_00-18",
+      "video_file": "toomers_data_22.mp4",
+      "duration_minutes": 1,
+      "total_vehicles": 568,
+      "mean_per_minute": {
+        "north": 114.0,
+        "south": 394.0,
+        "east": 0.0,
+        "west": 60.0
+      },
+      "peak_per_minute": {
+        "north": 114,
+        "south": 394,
+        "east": 0,
+        "west": 60
+      },
+      "dominant_direction": "south",
+      "metadata_rates_vehmin": [
+        114.0,
+        394.0,
+        0.0,
+        60.0
+      ]
+    },
+    {
+      "session_id": "Session_2026-03-25_18-20",
+      "video_file": "toomers_corner_day2.mp4",
+      "duration_minutes": 16,
+      "total_vehicles": 7641,
+      "mean_per_minute": {
+        "north": 147.5,
+        "south": 264.125,
+        "east": 23.75,
+        "west": 42.1875
+      },
+      "peak_per_minute": {
+        "north": 249,
+        "south": 357,
+        "east": 80,
+        "west": 75
+      },
+      "dominant_direction": "south",
+      "metadata_rates_vehmin": [
+        147.5,
+        264.12,
+        23.75,
+        42.19
+      ]
+    },
+    {
+      "session_id": "Session_2026-03-25_18-52",
+      "video_file": "Day_2_part3.mp4",
+      "duration_minutes": 14,
+      "total_vehicles": 6753,
+      "mean_per_minute": {
+        "north": 153.42857142857142,
+        "south": 264.64285714285717,
+        "east": 21.428571428571427,
+        "west": 42.857142857142854
+      },
+      "peak_per_minute": {
+        "north": 245,
+        "south": 354,
+        "east": 60,
+        "west": 60
+      },
+      "dominant_direction": "south",
+      "metadata_rates_vehmin": [
+        153.43,
+        264.64,
+        21.43,
+        42.86
+      ]
+    },
+    {
+      "session_id": "Session_2026-03-26_13-53",
+      "video_file": "Day3_part1.mp4",
+      "duration_minutes": 6,
+      "total_vehicles": 2890,
+      "mean_per_minute": {
+        "north": 198.16666666666666,
+        "south": 233.5,
+        "east": 10.0,
+        "west": 40.0
+      },
+      "peak_per_minute": {
+        "north": 261,
+        "south": 317,
+        "east": 60,
+        "west": 60
+      },
+      "dominant_direction": "south",
+      "metadata_rates_vehmin": [
+        198.17,
+        233.5,
+        10.0,
+        40.0
+      ]
+    },
+    {
+      "session_id": "Session_2026-03-27_16-06",
+      "video_file": "Day_4_part1.mp4",
+      "duration_minutes": 16,
+      "total_vehicles": 6007,
+      "mean_per_minute": {
+        "north": 143.5,
+        "south": 183.1875,
+        "east": 11.25,
+        "west": 37.5
+      },
+      "peak_per_minute": {
+        "north": 195,
+        "south": 289,
+        "east": 60,
+        "west": 60
+      },
+      "dominant_direction": "south",
+      "metadata_rates_vehmin": [
+        143.5,
+        183.19,
+        11.25,
+        37.5
+      ]
+    }
+  ],
+  "overall": {
+    "n_sessions": 7,
+    "total_minutes": 79,
+    "total_vehicles": 36883,
+    "mean_per_minute": {
+      "north": 142.36708860759492,
+      "south": 257.9873417721519,
+      "east": 23.79746835443038,
+      "west": 42.721518987341774
+    },
+    "peak_per_minute": {
+      "north": 261,
+      "south": 395,
+      "east": 80,
+      "west": 75
+    },
+    "dominant_direction": "south"
+  }
+}

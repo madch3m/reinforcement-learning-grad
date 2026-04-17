@@ -211,6 +211,14 @@ datasets/
 # Keep committed data and results used in evaluation
 !traffic_rl_project/data/
 !traffic_rl_project/data/*.csv
+!traffic_rl_project/data/*.json
+!traffic_rl_project/data/*.png
+
+# Keep raw recording session folders in the repo
+!traffic_rl_project/Session_*/
+!traffic_rl_project/Session_*/*.csv
+!traffic_rl_project/Session_*/*.json
+!traffic_rl_project/Session_*/*.png
 
 # Temporary files
 *.tmp
@@ -234,6 +242,14 @@ scenario_performance.png
 !traffic_rl_project/results/
 !traffic_rl_project/results/**/*.png
 !traffic_rl_project/results/*.png
+
+# Keep data directory images (dataset summary plots)
+!traffic_rl_project/data/
+!traffic_rl_project/data/*.png
+
+# Keep raw recording session PNGs
+!traffic_rl_project/Session_*/
+!traffic_rl_project/Session_*/*.png
 
 # But keep example images if you add them
 !examples/*.png
