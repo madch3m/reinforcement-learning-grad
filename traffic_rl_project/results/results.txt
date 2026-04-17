@@ -1,0 +1,13 @@
+SUMO Traffic Signal RL - Training Results
+==================================================
+
+Scenario:          single-intersection
+Training steps:    10,000
+Eval episodes:     3
+
+PPO rewards:       ['-1.28', '-0.47', '-0.94']
+Random rewards:    ['-6.81', '-3.53', '-2.88']
+
+PPO mean:          -0.90 +/- 0.33
+Random mean:       -4.41 +/- 1.72
+Improvement:       79.7%
