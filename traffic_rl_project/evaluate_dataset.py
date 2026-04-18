@@ -7,7 +7,6 @@ Produces per-session metrics and an aggregate comparison.
 """
 
 import csv
-import json
 import os
 import sys
 from collections import defaultdict
@@ -196,10 +195,6 @@ def plot_aggregate(results, sessions, out_dir):
         c: sum(results[sid][c]["vehicles_passed"] for sid in session_ids)
         for c in ctrl_names
     }
-    total_arrived = sum(
-        results[session_ids[0]][ctrl_names[0]]["vehicles_arrived"]
-        for sid in session_ids
-    )
     avg_throughput = {
         c: np.mean([results[sid][c]["throughput"] for sid in session_ids])
         for c in ctrl_names

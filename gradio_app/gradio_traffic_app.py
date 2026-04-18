@@ -19,7 +19,6 @@ from traffic_rl_project import (
     FixedTimeController,
     MaxPressureController,
     TrafficSignalEnv,
-    Vehicle,
 )
 
 
@@ -41,8 +40,8 @@ def create_intersection_visualization(env, step_num):
     
     # Draw roads
     road_color = '#555555'
-    road_width = 4
-    
+
+
     # Vertical road (North-South)
     ax_intersection.add_patch(patches.Rectangle((-2, -10), 4, 20, 
                                                facecolor=road_color, edgecolor='white', linewidth=2))

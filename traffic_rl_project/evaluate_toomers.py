@@ -16,7 +16,6 @@ Caveats:
 import csv
 import os
 import sys
-from copy import deepcopy
 
 import numpy as np
 import matplotlib
