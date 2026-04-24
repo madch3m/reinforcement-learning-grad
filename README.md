@@ -153,12 +153,33 @@ python gradio_app/gradio_traffic_app.py
 
 ## 🎮 Interactive Demo
 
+![Gradio UI](docs/images/gradio_app.png)
+
 ### Local Demo
+
+From the project root:
+
 ```bash
-cd gradio_app
-python gradio_traffic_app.py
-# Open browser to http://localhost:7860
+./run_gradio.sh
 ```
+
+The launcher `cd`s to the project root, activates `.venv/` if present, and starts
+the app on <http://127.0.0.1:7860>. `Ctrl+C` stops it.
+
+Or run directly:
+
+```bash
+python gradio_app/gradio_traffic_app.py
+```
+
+### Sample Output
+
+After clicking **Run Simulation**, the UI renders an intersection diagram with
+live queues plus a three-panel performance plot:
+
+| Intersection View | Performance Plots |
+|-------------------|-------------------|
+| ![Intersection](docs/images/gradio_sample_intersection.png) | ![Performance](docs/images/gradio_sample_performance.png) |
 
 ### Deploy Your Own
 🌐 See [gradio_app/DEPLOYMENT_GUIDE.md](gradio_app/DEPLOYMENT_GUIDE.md) to host the demo on Hugging Face Spaces.
