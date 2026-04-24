@@ -6,8 +6,6 @@
 
 A complete reinforcement learning project for traffic signal optimization, including training notebooks, baseline controllers, interactive visualization, and deployment tools for Hugging Face Spaces.
 
-![Traffic Intersection Demo](https://img.shields.io/badge/Demo-Coming%20Soon-brightgreen)
-
 ## 🌟 Features
 
 - **🎓 Educational Notebooks**: Step-by-step implementation of RL for traffic control
@@ -23,12 +21,20 @@ A complete reinforcement learning project for traffic signal optimization, inclu
 traffic-signal-rl-complete/
 ├── traffic_rl_project/              # Main RL implementation
 │   ├── traffic_signal_rl.ipynb     # Complete training notebook
+│   ├── train_sumo.py               # SUMO-based training script
+│   ├── train_sumo_colab.ipynb      # SUMO training notebook (Colab)
 │   ├── environment.py              # Importable Gymnasium environment
 │   ├── baselines.py                # Baseline traffic controllers
 │   ├── evaluation.py               # Evaluation helpers and comparisons
+│   ├── build_dataset.py            # Build the Toomer's Corner dataset
+│   ├── evaluate_dataset.py         # Evaluate controllers on the dataset
+│   ├── evaluate_toomers.py         # Real-data evaluation entry point
 │   ├── __init__.py                 # Package exports
-│   ├── requirements.txt             # Python dependencies
+│   ├── requirements.txt            # Python dependencies
 │   ├── test_setup.py               # Environment verification
+│   ├── test_traffic_rl.py          # Pytest test suite (51 tests)
+│   ├── data/                       # Toomer's Corner dataset (pre-shipped)
+│   ├── models/best_model.zip       # Pre-trained PPO checkpoint
 │   └── README.md                   # Detailed documentation
 │
 ├── gradio_app/                      # Interactive web application
@@ -52,8 +58,8 @@ traffic-signal-rl-complete/
 **Windows:**
 ```bash
 # Download the repository
-git clone https://github.com/YOUR_USERNAME/traffic-signal-rl.git
-cd traffic-signal-rl
+git clone https://github.com/madch3m/reinforcement-learning-grad.git
+cd reinforcement-learning-grad
 
 # Double-click open_in_vscode.bat
 # Or run:
@@ -63,8 +69,8 @@ code traffic_rl.code-workspace
 **Mac/Linux:**
 ```bash
 # Download the repository
-git clone https://github.com/YOUR_USERNAME/traffic-signal-rl.git
-cd traffic-signal-rl
+git clone https://github.com/madch3m/reinforcement-learning-grad.git
+cd reinforcement-learning-grad
 
 # Run the launcher
 chmod +x open_in_vscode.sh
@@ -78,8 +84,8 @@ code traffic_rl.code-workspace
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/traffic-signal-rl.git
-cd traffic-signal-rl
+git clone https://github.com/madch3m/reinforcement-learning-grad.git
+cd reinforcement-learning-grad
 
 # Create virtual environment
 python -m venv venv
@@ -93,6 +99,10 @@ source venv/bin/activate
 # Install dependencies
 pip install -r traffic_rl_project/requirements.txt
 pip install -r gradio_app/requirements_gradio.txt
+
+# Verify the install (optional but recommended)
+python traffic_rl_project/test_setup.py
+pytest traffic_rl_project/test_traffic_rl.py
 
 # Run Jupyter notebook
 jupyter notebook traffic_rl_project/traffic_signal_rl.ipynb
@@ -150,8 +160,8 @@ python gradio_traffic_app.py
 # Open browser to http://localhost:7860
 ```
 
-### Live Demo (Coming Soon)
-🌐 [Try it on Hugging Face Spaces](#) - Deploy your own using the deployment guide!
+### Deploy Your Own
+🌐 See [gradio_app/DEPLOYMENT_GUIDE.md](gradio_app/DEPLOYMENT_GUIDE.md) to host the demo on Hugging Face Spaces.
 
 ## 📊 Performance Metrics
 
@@ -266,11 +276,11 @@ If you use this project in your research or work, please cite:
 
 ```bibtex
 @misc{traffic-signal-rl,
-  author = {Your Name},
+  author = {Zeke Long},
   title = {Traffic Signal Optimization with Reinforcement Learning},
-  year = {2024},
+  year = {2026},
   publisher = {GitHub},
-  url = {https://github.com/YOUR_USERNAME/traffic-signal-rl}
+  url = {https://github.com/madch3m/reinforcement-learning-grad}
 }
 ```
 
@@ -287,8 +297,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📬 Contact
 
-- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/traffic-signal-rl/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/traffic-signal-rl/discussions)
+- **Issues**: [GitHub Issues](https://github.com/madch3m/reinforcement-learning-grad/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/madch3m/reinforcement-learning-grad/discussions)
 
 ## 🗺️ Roadmap
 

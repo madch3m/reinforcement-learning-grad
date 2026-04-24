@@ -17,7 +17,6 @@ print("=" * 80)
 print("TRAFFIC SIGNAL RL - QUICK START DEMO")
 print("=" * 80)
 
-# Test imports
 print("\n1. Testing imports...")
 try:
     import gymnasium as gym
@@ -50,7 +49,6 @@ try:
 except ImportError as e:
     print(f"   ✗ matplotlib - {e}")
 
-# Simple environment test
 print("\n2. Testing project traffic environment...")
 
 try:
@@ -61,18 +59,16 @@ try:
     print(f"   ✓ Environment created successfully")
     print(f"   - Observation space: {env.observation_space}")
     print(f"   - Action space: {env.action_space}")
-    
-    # Test a few steps
+
     controller = FixedTimeController(green_time=15)
     for i in range(5):
         action, _ = controller.predict(obs, env)
         obs, reward, terminated, truncated, info = env.step(action)
     print(f"   ✓ Environment step test passed")
-    
+
 except Exception as e:
     print(f"   ✗ Environment test failed: {e}")
 
-# Test RL agent creation
 print("\n3. Testing RL agent creation...")
 try:
     from stable_baselines3 import PPO
@@ -88,16 +84,14 @@ try:
     print("   ✓ PPO agent created successfully")
     print(f"   - Policy type: MlpPolicy")
     print(f"   - Learning rate: 3e-4")
-    
-    # Quick training test (very short)
+
     print("\n4. Running quick training test (100 steps)...")
     agent.learn(total_timesteps=100, progress_bar=False)
     print("   ✓ Training test passed")
-    
+
 except Exception as e:
     print(f"   ✗ Agent test failed: {e}")
 
-# Visualization test
 print("\n5. Testing visualization...")
 try:
     fig, ax = plt.subplots(figsize=(8, 4))
@@ -112,7 +106,6 @@ try:
 except Exception as e:
     print(f"   ✗ Visualization test failed: {e}")
 
-# Summary
 print("\n" + "=" * 80)
 print("SETUP VERIFICATION COMPLETE")
 print("=" * 80)

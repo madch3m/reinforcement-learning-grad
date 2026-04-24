@@ -22,10 +22,6 @@ from gradio_app.gradio_traffic_app import (
 )
 
 
-# ============================================================================
-# Vehicle Tests
-# ============================================================================
-
 class TestVehicle:
     def test_init(self):
         v = Vehicle(arrival_time=10.0, lane=2)
@@ -46,7 +42,6 @@ class TestVehicle:
         v.update_waiting_time(1.0)
         v.has_passed = True
         v.update_waiting_time(5.0)
-        # Should not increase after passing
         assert v.waiting_time == 1.0
 
     def test_lane_values(self):
@@ -54,10 +49,6 @@ class TestVehicle:
             v = Vehicle(0.0, lane)
             assert v.lane == lane
 
-
-# ============================================================================
-# TrafficSignalEnv Tests
-# ============================================================================
 
 class TestTrafficSignalEnv:
     def test_init_defaults(self):
@@ -207,10 +198,6 @@ class TestTrafficSignalEnv:
         assert info['throughput'] >= 0
 
 
-# ============================================================================
-# Controller Tests
-# ============================================================================
-
 class TestFixedTimeController:
     def test_init(self):
         c = FixedTimeController(green_time=25)
@@ -348,10 +335,6 @@ class TestMaxPressureController:
         assert action == 1
 
 
-# ============================================================================
-# Controller Integration Tests
-# ============================================================================
-
 class TestControllerIntegration:
     """Test controllers running against the actual environment."""
 
@@ -390,10 +373,6 @@ class TestControllerIntegration:
         }
 
 
-# ============================================================================
-# Visualization Tests
-# ============================================================================
-
 class TestVisualization:
     def test_create_intersection_visualization(self):
         """Test that intersection visualization returns a PIL Image."""
@@ -420,10 +399,6 @@ class TestVisualization:
         assert img.width > 0
         assert img.height > 0
 
-
-# ============================================================================
-# Gradio Interface Function Tests
-# ============================================================================
 
 class TestGradioFunctions:
     def test_run_simulation_fixed_time(self):
@@ -458,7 +433,6 @@ class TestGradioFunctions:
         assert "Fixed-Time" in result
         assert "Actuated" in result
         assert "Max-Pressure" in result
-        # Check table structure
         assert "|" in result
 
     def test_run_simulation_with_asymmetric_traffic(self):
@@ -469,10 +443,6 @@ class TestGradioFunctions:
         assert "Total Vehicles Passed" in summary
         assert "Throughput Rate" in summary
 
-
-# ============================================================================
-# Edge Case Tests
-# ============================================================================
 
 class TestEdgeCases:
     def test_zero_arrival_rate(self):

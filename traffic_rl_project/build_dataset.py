@@ -34,12 +34,10 @@ def load_sessions():
     for session_dir in sorted(glob.glob(SESSIONS_GLOB)):
         session_id = os.path.basename(session_dir)
 
-        # Metadata
         meta_path = os.path.join(session_dir, "measured_scenario.json")
         with open(meta_path) as f:
             meta = json.load(f)
 
-        # Minute-by-minute counts
         rows = []
         csv_path = os.path.join(session_dir, "traffic_counts.csv")
         with open(csv_path) as f:
@@ -90,7 +88,6 @@ def compute_aggregates(sessions):
         totals = {d: sum(r[d] for r in rows) for d in ("north", "south", "east", "west")}
         peaks = {d: max(r[d] for r in rows) for d in ("north", "south", "east", "west")}
         means = {d: totals[d] / n for d in totals}
-        # Dominant direction
         dominant = max(totals, key=totals.get)
         total_vehicles = sum(totals.values())
         out["sessions"].append({
@@ -105,7 +102,6 @@ def compute_aggregates(sessions):
         })
         all_minutes.extend(rows)
 
-    # Overall
     n_total = len(all_minutes)
     totals = {d: sum(r[d] for r in all_minutes) for d in ("north", "south", "east", "west")}
     peaks = {d: max(r[d] for r in all_minutes) for d in ("north", "south", "east", "west")}
@@ -128,7 +124,6 @@ def plot_summary(sessions, aggregates, path):
     dir_colors = {"north": "#3498db", "south": "#2ecc71",
                   "east": "#e67e22", "west": "#e74c3c"}
 
-    # Panel 1: Per-session total vehicles
     ax = axes[0, 0]
     ids = [s["session_id"].replace("Session_", "") for s in sessions]
     totals = [sum(sum(r[d] for d in directions) for r in s["rows"]) for s in sessions]
@@ -143,7 +138,6 @@ def plot_summary(sessions, aggregates, path):
                 f"{d}min", ha="center", va="bottom", fontsize=8)
     ax.grid(axis="y", alpha=0.3)
 
-    # Panel 2: Mean vehicles/min per direction, per session
     ax = axes[0, 1]
     x = np.arange(len(ids))
     width = 0.2
@@ -160,7 +154,6 @@ def plot_summary(sessions, aggregates, path):
     ax.legend(fontsize=9)
     ax.grid(axis="y", alpha=0.3)
 
-    # Panel 3: Stacked direction distribution (share) per session
     ax = axes[1, 0]
     bottom = np.zeros(len(sessions))
     for d in directions:
@@ -179,7 +172,6 @@ def plot_summary(sessions, aggregates, path):
     ax.legend(fontsize=9, loc="lower right")
     ax.set_ylim(0, 100)
 
-    # Panel 4: Pooled distribution of per-minute counts per direction
     ax = axes[1, 1]
     pooled = {d: [] for d in directions}
     for s in sessions:

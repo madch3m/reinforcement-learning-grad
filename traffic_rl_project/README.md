@@ -43,19 +43,38 @@ Simply run all cells in order. The notebook is structured to:
 4. Evaluate and compare performance
 5. Generate visualizations
 
+> **Tip**: A pre-trained PPO checkpoint ships in `models/best_model.zip` and the
+> real-traffic dataset ships in `data/`, so you can run evaluation and the
+> Gradio app without retraining first.
+
+### 4. Verify the Install
+
+```bash
+python test_setup.py          # quick smoke test
+pytest test_traffic_rl.py     # full suite (51 tests)
+```
+
 ## 📊 Project Structure
 
 ```
 traffic_rl_project/
 ├── traffic_signal_rl.ipynb    # Main notebook
+├── train_sumo.py              # SUMO-based training script
+├── train_sumo_colab.ipynb     # SUMO training notebook (Colab)
 ├── environment.py             # Shared Gymnasium environment
 ├── baselines.py               # Baseline controllers
 ├── evaluation.py              # Evaluation utilities
+├── build_dataset.py           # Build the Toomer's Corner dataset
+├── evaluate_dataset.py        # Evaluate controllers on the dataset
+├── evaluate_toomers.py        # Real-data evaluation entry point
+├── test_setup.py              # Environment verification script
+├── test_traffic_rl.py         # Pytest test suite (51 tests)
 ├── __init__.py                # Public package exports
-├── requirements.txt            # Python dependencies
-├── README.md                   # This file
-├── models/                     # Saved models (created during training)
-├── logs/                       # Training logs (created during training)
+├── requirements.txt           # Python dependencies
+├── README.md                  # This file
+├── data/                      # Toomer's Corner dataset (pre-shipped)
+├── models/best_model.zip      # Pre-trained PPO checkpoint (pre-shipped)
+├── logs/                      # Training logs (created during training)
 └── traffic_rl_logs/           # TensorBoard logs (created during training)
 ```
 

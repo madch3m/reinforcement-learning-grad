@@ -20,7 +20,7 @@ import sys
 import argparse
 import numpy as np
 
-# Set SUMO_HOME before importing sumo_rl
+# SUMO_HOME must be set before importing sumo_rl.
 import sumo
 os.environ["SUMO_HOME"] = os.path.dirname(sumo.__file__)
 
@@ -28,10 +28,6 @@ import sumo_rl
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback, BaseCallback
 
-
-# ---------------------------------------------------------------------------
-# Scenario definitions
-# ---------------------------------------------------------------------------
 
 NETS_DIR = os.path.join(os.path.dirname(sumo_rl.__file__), "nets")
 
@@ -99,10 +95,6 @@ SCENARIOS = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Training callback
-# ---------------------------------------------------------------------------
-
 class TrainingProgressCallback(BaseCallback):
     """Logs training progress at regular intervals."""
 
@@ -132,10 +124,6 @@ class TrainingProgressCallback(BaseCallback):
         return True
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-
 def make_env(scenario_cfg, use_gui=False):
     """Create a SUMO environment from a scenario config dict."""
     return sumo_rl.SumoEnvironment(
@@ -162,7 +150,6 @@ def train(scenario_name, total_timesteps, use_gui, output_dir):
     print(f"  Output:     {output_dir}/")
     print()
 
-    # Verify scenario files exist
     for key in ("net_file", "route_file"):
         if not os.path.isfile(scenario_cfg[key]):
             print(f"ERROR: {key} not found: {scenario_cfg[key]}")
@@ -170,14 +157,12 @@ def train(scenario_name, total_timesteps, use_gui, output_dir):
 
     os.makedirs(output_dir, exist_ok=True)
 
-    # Create environments
     print("Creating training environment...")
     train_env = make_env(scenario_cfg, use_gui=use_gui)
 
     print("Creating evaluation environment...")
     eval_env = make_env(scenario_cfg, use_gui=False)
 
-    # Create PPO agent
     print("Initializing PPO agent...")
     model = PPO(
         "MlpPolicy",
@@ -198,7 +183,6 @@ def train(scenario_name, total_timesteps, use_gui, output_dir):
     print(f"  Action space:      {act_space} (n={act_space.n})")
     print()
 
-    # Callbacks
     eval_callback = EvalCallback(
         eval_env,
         best_model_save_path=os.path.join(output_dir, "best_model"),
@@ -210,7 +194,6 @@ def train(scenario_name, total_timesteps, use_gui, output_dir):
     )
     progress_callback = TrainingProgressCallback(log_interval=5000)
 
-    # Train
     print(f"Training for {total_timesteps:,} timesteps...")
     print("-" * 70)
     model.learn(
@@ -219,12 +202,10 @@ def train(scenario_name, total_timesteps, use_gui, output_dir):
     )
     print("-" * 70)
 
-    # Save final model
     final_path = os.path.join(output_dir, f"ppo_{scenario_name}_final")
     model.save(final_path)
     print(f"\nFinal model saved to: {final_path}.zip")
 
-    # Cleanup
     train_env.close()
     eval_env.close()
 

@@ -22,94 +22,76 @@ from traffic_rl_project import (
 )
 
 
-# ============================================================================
-# Visualization Functions
-# ============================================================================
-
 def create_intersection_visualization(env, step_num):
     """Create a visual representation of the intersection."""
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    
-    # Left plot: Intersection visualization
+
     ax_intersection = axes[0]
     ax_intersection.set_xlim(-10, 10)
     ax_intersection.set_ylim(-10, 10)
     ax_intersection.set_aspect('equal')
     ax_intersection.axis('off')
     ax_intersection.set_title(f'Intersection View (Step {step_num})', fontsize=14, fontweight='bold')
-    
-    # Draw roads
+
     road_color = '#555555'
-
-
-    # Vertical road (North-South)
-    ax_intersection.add_patch(patches.Rectangle((-2, -10), 4, 20, 
+    ax_intersection.add_patch(patches.Rectangle((-2, -10), 4, 20,
                                                facecolor=road_color, edgecolor='white', linewidth=2))
-    # Horizontal road (East-West)
-    ax_intersection.add_patch(patches.Rectangle((-10, -2), 20, 4, 
+    ax_intersection.add_patch(patches.Rectangle((-10, -2), 20, 4,
                                                facecolor=road_color, edgecolor='white', linewidth=2))
-    
-    # Draw center intersection
-    ax_intersection.add_patch(patches.Rectangle((-2, -2), 4, 4, 
+    ax_intersection.add_patch(patches.Rectangle((-2, -2), 4, 4,
                                                facecolor='#666666', edgecolor='white', linewidth=2))
-    
-    # Get signal phase
+
     phase_info = env.PHASES[env.current_phase]
-    
-    # Draw traffic lights
+
+    # Lane index → cardinal direction: 0=N, 1=E, 2=S, 3=W.
     light_positions = {
-        0: (0, 4),    # North (bottom of north approach)
-        1: (4, 0),    # East (left of east approach)
-        2: (0, -4),   # South (top of south approach)
-        3: (-4, 0),   # West (right of west approach)
+        0: (0, 4),
+        1: (4, 0),
+        2: (0, -4),
+        3: (-4, 0),
     }
-    
+
     for lane, (x, y) in light_positions.items():
-        # Determine light color
-        if lane in [0, 2]:  # North-South
+        if lane in (0, 2):
             color = 'green' if phase_info['ns'] == 'green' else \
                    'yellow' if phase_info['ns'] == 'yellow' else 'red'
-        else:  # East-West
+        else:
             color = 'green' if phase_info['ew'] == 'green' else \
                    'yellow' if phase_info['ew'] == 'yellow' else 'red'
-        
-        ax_intersection.add_patch(patches.Circle((x, y), 0.5, 
+
+        ax_intersection.add_patch(patches.Circle((x, y), 0.5,
                                                 facecolor=color, edgecolor='black', linewidth=2))
-    
-    # Draw vehicles in queues
+
     vehicle_positions = {
-        0: lambda i: (0.5, 5 + i * 0.8),    # North
-        1: lambda i: (5 + i * 0.8, 0.5),    # East
-        2: lambda i: (-0.5, -5 - i * 0.8),  # South
-        3: lambda i: (-5 - i * 0.8, -0.5),  # West
+        0: lambda i: (0.5, 5 + i * 0.8),
+        1: lambda i: (5 + i * 0.8, 0.5),
+        2: lambda i: (-0.5, -5 - i * 0.8),
+        3: lambda i: (-5 - i * 0.8, -0.5),
     }
-    
+
     for lane, queue in enumerate(env.queues):
-        for i, vehicle in enumerate(list(queue)[:10]):  # Show max 10 vehicles
+        for i, vehicle in enumerate(list(queue)[:10]):
             x, y = vehicle_positions[lane](i)
             ax_intersection.add_patch(patches.Rectangle((x-0.3, y-0.3), 0.6, 0.6,
-                                                        facecolor='#FFD700', 
+                                                        facecolor='#FFD700',
                                                         edgecolor='black', linewidth=1))
-    
-    # Add queue length labels
+
     label_positions = {
         0: (0, 8, 'N'),
         1: (8, 0, 'E'),
         2: (0, -8, 'S'),
         3: (-8, 0, 'W'),
     }
-    
+
     for lane, (x, y, direction) in label_positions.items():
         queue_len = len(env.queues[lane])
-        ax_intersection.text(x, y, f'{direction}: {queue_len}', 
+        ax_intersection.text(x, y, f'{direction}: {queue_len}',
                            ha='center', va='center', fontsize=12,
                            bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
-    
-    # Right plot: Metrics
+
     ax_metrics = axes[1]
     ax_metrics.axis('off')
-    
-    # Display metrics
+
     metrics_text = f"""
     TIME STEP: {step_num}
     
@@ -136,36 +118,33 @@ def create_intersection_visualization(env, step_num):
     ax_metrics.text(0.1, 0.95, metrics_text, transform=ax_metrics.transAxes,
                    fontsize=11, verticalalignment='top', family='monospace',
                    bbox=dict(boxstyle='round', facecolor='lightgray', alpha=0.8))
-    
+
     plt.tight_layout()
-    
-    # Convert to image
+
     buf = io.BytesIO()
     plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
     buf.seek(0)
     img = Image.open(buf)
     plt.close(fig)
-    
+
     return img
 
 
 def create_performance_plots(history):
     """Create performance plots over time."""
     fig, axes = plt.subplots(3, 1, figsize=(12, 10))
-    
+
     steps = range(len(history['queue_lengths']))
-    
-    # Queue lengths
-    queue_data = np.array(history['queue_lengths'])
     labels = ['North', 'East', 'South', 'West']
+
+    queue_data = np.array(history['queue_lengths'])
     for i in range(4):
         axes[0].plot(steps, queue_data[:, i], label=labels[i], linewidth=2)
     axes[0].set_ylabel('Queue Length', fontsize=11)
     axes[0].set_title('Queue Lengths Over Time', fontsize=13, fontweight='bold')
     axes[0].legend(loc='upper right')
     axes[0].grid(True, alpha=0.3)
-    
-    # Waiting times
+
     waiting_data = np.array(history['waiting_times'])
     for i in range(4):
         axes[1].plot(steps, waiting_data[:, i], label=labels[i], linewidth=2)
@@ -173,63 +152,50 @@ def create_performance_plots(history):
     axes[1].set_title('Average Waiting Time per Lane', fontsize=13, fontweight='bold')
     axes[1].legend(loc='upper right')
     axes[1].grid(True, alpha=0.3)
-    
-    # Cumulative throughput
+
     axes[2].plot(steps, history['throughput'], linewidth=2, color='green')
     axes[2].set_xlabel('Time Step', fontsize=11)
     axes[2].set_ylabel('Vehicles Passed', fontsize=11)
     axes[2].set_title('Cumulative Throughput', fontsize=13, fontweight='bold')
     axes[2].grid(True, alpha=0.3)
-    
+
     plt.tight_layout()
-    
-    # Convert to image
+
     buf = io.BytesIO()
     plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
     buf.seek(0)
     img = Image.open(buf)
     plt.close(fig)
-    
+
     return img
 
 
-# ============================================================================
-# Gradio Interface Functions
-# ============================================================================
-
-def run_simulation(controller_type, north_rate, east_rate, south_rate, west_rate, 
+def run_simulation(controller_type, north_rate, east_rate, south_rate, west_rate,
                   num_steps, green_time, min_green, max_green):
     """Run the simulation and return visualizations."""
-    
-    # Create environment
     arrival_rates = [north_rate, east_rate, south_rate, west_rate]
     env = TrafficSignalEnv(arrival_rates=arrival_rates, episode_length=num_steps)
-    
-    # Select controller
+
     if controller_type == "Fixed-Time":
         controller = FixedTimeController(green_time=green_time)
     elif controller_type == "Actuated":
         controller = ActuatedController(min_green=min_green, max_green=max_green)
-    else:  # Max-Pressure
+    else:
         controller = MaxPressureController()
-    
-    # Initialize
+
     obs, _ = env.reset()
-    
-    # History for plotting
+
     history = {
         'queue_lengths': [],
         'waiting_times': [],
         'throughput': [],
         'phases': []
     }
-    
-    # Run simulation
+
     for step in range(num_steps):
         action, _ = controller.predict(obs, env)
         obs, reward, terminated, truncated, info = env.step(action)
-        
-        # Log history
+
         history['queue_lengths'].append([len(q) for q in env.queues])
         avg_waiting = []
         for queue in env.queues:
@@ -240,12 +206,10 @@ def run_simulation(controller_type, north_rate, east_rate, south_rate, west_rate
         history['waiting_times'].append(avg_waiting)
         history['throughput'].append(env.total_vehicles_passed)
         history['phases'].append(env.current_phase)
-    
-    # Create visualizations
+
     final_intersection = create_intersection_visualization(env, num_steps)
     performance_plots = create_performance_plots(history)
-    
-    # Create summary text
+
     summary = f"""
     ## Simulation Complete!
     
@@ -265,24 +229,23 @@ def run_simulation(controller_type, north_rate, east_rate, south_rate, west_rate
 
 def run_comparison(north_rate, east_rate, south_rate, west_rate, num_steps):
     """Run comparison of all controllers."""
-    
     arrival_rates = [north_rate, east_rate, south_rate, west_rate]
     controllers = [
         FixedTimeController(green_time=30),
         ActuatedController(min_green=15, max_green=45),
         MaxPressureController()
     ]
-    
+
     results = []
-    
+
     for controller in controllers:
         env = TrafficSignalEnv(arrival_rates=arrival_rates, episode_length=num_steps)
         obs, _ = env.reset()
-        
+
         for step in range(num_steps):
             action, _ = controller.predict(obs, env)
             obs, reward, terminated, truncated, info = env.step(action)
-        
+
         results.append({
             'Controller': controller.name,
             'Avg Waiting Time': f"{env.total_waiting_time / max(env.total_vehicles_arrived, 1):.2f}s",
@@ -290,8 +253,7 @@ def run_comparison(north_rate, east_rate, south_rate, west_rate, num_steps):
             'Vehicles Passed': env.total_vehicles_passed,
             'Final Queue': sum(len(q) for q in env.queues)
         })
-    
-    # Create comparison table
+
     comparison_text = "## Controller Comparison\n\n"
     comparison_text += "| Controller | Avg Wait Time | Throughput | Vehicles Passed | Final Queue |\n"
     comparison_text += "|------------|---------------|------------|-----------------|-------------|\n"
@@ -300,10 +262,6 @@ def run_comparison(north_rate, east_rate, south_rate, west_rate, num_steps):
     
     return comparison_text
 
-
-# ============================================================================
-# Gradio App
-# ============================================================================
 
 with gr.Blocks(title="Traffic Signal RL Visualization") as demo:
     gr.Markdown("""
@@ -363,8 +321,7 @@ with gr.Blocks(title="Traffic Signal RL Visualization") as demo:
                    num_steps, green_time, min_green, max_green],
             outputs=[intersection_img, performance_img, summary_md]
         )
-        
-        # Preset scenarios
+
         gr.Markdown("### 🎯 Quick Scenarios")
         with gr.Row():
             balanced_btn = gr.Button("⚖️ Balanced Traffic")
@@ -452,6 +409,5 @@ with gr.Blocks(title="Traffic Signal RL Visualization") as demo:
         Built with Gradio for deployment on Hugging Face Spaces 🤗
         """)
 
-# Launch the app
 if __name__ == "__main__":
     demo.launch(theme=gr.themes.Soft())

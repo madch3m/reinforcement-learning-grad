@@ -255,12 +255,10 @@ def main():
 
     results = evaluate_all(sessions, videos)
 
-    # Write summary CSV
     summary_csv = os.path.join(OUT_DIR, "all_sessions_summary.csv")
     write_summary_csv(results, sessions, videos, summary_csv)
     print(f"\nWrote per-session CSV:  {summary_csv}")
 
-    # Plots
     print("\nGenerating aggregate plots...")
     plot_aggregate(results, sessions, OUT_DIR)
     print(f"\nAll outputs saved to: {OUT_DIR}/")

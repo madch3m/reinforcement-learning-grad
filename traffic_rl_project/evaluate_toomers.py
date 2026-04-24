@@ -32,10 +32,6 @@ from traffic_rl_project import (  # noqa: E402
     TrafficSignalEnv,
 )
 
-# ----------------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------------
-
 CSV_PATH = os.path.join(HERE, "data", "toomers_traffic.csv")
 OUT_DIR = os.path.join(HERE, "results", "toomers")
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -47,10 +43,6 @@ LANES_PER_APPROACH = [2, 1, 2, 1]
 SECONDS_PER_MINUTE = 60
 RANDOM_SEED = 42
 
-
-# ----------------------------------------------------------------------------
-# Load and prepare data
-# ----------------------------------------------------------------------------
 
 def load_toomers_data(csv_path):
     """Return list of (minute, rates[N,E,S,W]) tuples in vehicles/sec/lane."""
@@ -67,10 +59,6 @@ def load_toomers_data(csv_path):
             rows.append((int(row["minute"]), rates))
     return rows
 
-
-# ----------------------------------------------------------------------------
-# Evaluation loop with time-varying arrival rates
-# ----------------------------------------------------------------------------
 
 def run_controller_on_data(controller, minute_rates, seed=RANDOM_SEED):
     """Run one controller through all minutes of Toomer's data.
@@ -95,10 +83,8 @@ def run_controller_on_data(controller, minute_rates, seed=RANDOM_SEED):
     }
 
     for minute, rates in minute_rates:
-        # Update both env and its traffic generator for this minute
         env.arrival_rates = rates
         env.traffic_gen.base_rates = np.array(rates, dtype=np.float32)
-        # Simulate 60 seconds of this minute
         for _ in range(SECONDS_PER_MINUTE):
             action, _ = controller.predict(obs, env=env)
             obs, reward, _, _, info = env.step(action)
@@ -119,10 +105,6 @@ def run_controller_on_data(controller, minute_rates, seed=RANDOM_SEED):
         "history": history,
     }
 
-
-# ----------------------------------------------------------------------------
-# Visualizations
-# ----------------------------------------------------------------------------
 
 def plot_all(results, data, out_dir):
     """Generate 5 comparison plots."""
@@ -230,17 +212,12 @@ def plot_all(results, data, out_dir):
     print(f"  Saved: {p}")
 
 
-# ----------------------------------------------------------------------------
-# Main
-# ----------------------------------------------------------------------------
-
 def main():
     print("=" * 70)
     print("Toomer's Corner Traffic Evaluation")
     print("=" * 70)
 
     data = load_toomers_data(CSV_PATH)
-    # Total raw vehicle count across all approaches
     total_arrivals = sum(
         sum(rate * lanes * SECONDS_PER_MINUTE
             for rate, lanes in zip(rates, LANES_PER_APPROACH))
@@ -263,7 +240,6 @@ def main():
         print(f"Running {ctrl.name}...")
         results[ctrl.name] = run_controller_on_data(ctrl, data)
 
-    # Print summary table
     print("\n" + "=" * 70)
     print(f"{'Controller':<16} {'Passed':>8} {'Arrived':>9} "
           f"{'Avg Wait (s)':>13} {'Throughput':>11} {'Final Q':>8}")
@@ -274,7 +250,6 @@ def main():
               f"{r['final_queue_total']:>8}")
     print("=" * 70)
 
-    # Save summary text
     with open(os.path.join(OUT_DIR, "summary.txt"), "w") as f:
         f.write("Toomer's Corner Traffic Evaluation\n")
         f.write("=" * 70 + "\n")

@@ -254,3 +254,10 @@ scenario_performance.png
 # But keep example images if you add them
 !examples/*.png
 !docs/*.png
+final_report.pdf
+final_report.tex
+final_report.aux
+final_report.out
+final_report.log
+presentation_script.md
+presentation_notes.pdf
